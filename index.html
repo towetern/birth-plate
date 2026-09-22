@@ -1,0 +1,47 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Birth Plate Maker · Darul Noon</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;1,400;1,500&family=Source+Sans+3:wght@400;600&display=swap">
+<style>
+:root{--paper:#F3EDE2;--ink:#2B2622;--muted:#6F665C;--line:#D9CFC0;--sage:#6F7D62;--panel:#FBF8F2}
+*{box-sizing:border-box}body{margin:0;background:var(--paper);color:var(--ink);font-family:"Source Sans 3",system-ui,sans-serif;padding:20px 16px 48px}
+.wrap{max-width:1040px;margin:0 auto}h1{font-family:"Cormorant Garamond",Georgia,serif;font-weight:500;font-size:2rem;margin:0 0 4px}
+.eyebrow{font-size:.72rem;text-transform:uppercase;letter-spacing:.14em;color:var(--muted)}
+.grid{display:grid;grid-template-columns:minmax(0,3fr) minmax(280px,2fr);gap:28px;align-items:start;margin-top:22px}@media(max-width:760px){.grid{grid-template-columns:1fr}}
+.preview{background:var(--panel);border:1px solid var(--line);padding:18px;display:flex;justify-content:center}canvas{max-width:100%;height:auto;box-shadow:0 12px 30px rgba(43,38,34,.12)}
+label{display:grid;gap:6px;font-size:.85rem;color:var(--muted);margin-bottom:16px}input{font:inherit;font-size:1rem;padding:10px 12px;border:1px solid var(--line);background:var(--panel);color:var(--ink)}
+button{font:inherit;font-weight:600;padding:12px 18px;border:0;background:var(--sage);color:#F6F3EC;cursor:pointer;width:100%}button[disabled]{opacity:.5}
+.note{font-size:.82rem;color:var(--muted);line-height:1.5}.status{min-height:1.4em;font-size:.85rem;margin-top:10px}
+</style></head><body><div class="wrap">
+<div class="eyebrow">Darul Noon · your download</div><h1>Birth Plate Maker</h1>
+<p class="note">Type your baby's details, watch them appear on the wreath, then download the print file — 3600 × 5400 px, 300 dpi, ready for 12 × 18 in or any 2:3 size. Nothing you type leaves your device.</p>
+<div class="grid">
+<div class="preview"><canvas id="prev" width="1024" height="1536"></canvas></div>
+<div>
+<label>Baby's name<input id="n" maxlength="30" value="Amélie"></label>
+<label>Birth date<input id="d" maxlength="30" value="12 March 2026"></label>
+<label>Time · weight · length (optional)<input id="s" maxlength="60" value="3:42 am · 3.4 kg · 51 cm"></label>
+<button id="dl">Download my birth plate (print file)</button>
+<div class="status" id="st"></div>
+<p class="note">The name is set in the same engraver's italic as the plate. Leave a line empty to skip it. Print on matte paper; frame with a wide ivory mount, as in the listing photos.</p>
+</div></div></div>
+<script>
+const M1="https://v3b.fal.media/files/b/0aab7ba1/iII-W2GS_8ksv2sbudzGa_0laBxBjp.png", M4="https://v3b.fal.media/files/b/0aab7bb0/KLrfmw0DaySwMpyMYbB6K.png", FONT='"Cormorant Garamond", Georgia, serif';
+const $=id=>document.getElementById(id); const prev=$("prev"); const st=$("st");
+function draw(ctx,W,H,img){ ctx.drawImage(img,0,0,W,H); const name=$("n").value.trim(), date=$("d").value.trim(), stats=$("s").value.trim();
+  ctx.fillStyle="rgb(92,74,58)"; ctx.textAlign="center"; ctx.textBaseline="middle"; let size=Math.round(W*0.117);
+  for(;size>W*0.033;size-=4){ ctx.font=`italic 400 ${size}px ${FONT}`; if(ctx.measureText(name).width<=W*0.46) break; }
+  const cy=H*0.50; if(name) ctx.fillText(name,W/2,cy-size*0.55);
+  if(date){ ctx.font=`italic 400 ${Math.round(size*0.42)}px ${FONT}`; ctx.fillText(date,W/2,cy+size*0.45); }
+  if(stats){ ctx.font=`400 ${Math.round(size*0.30)}px ${FONT}`; ctx.fillStyle="rgb(112,96,80)"; ctx.fillText(stats,W/2,cy+size*0.95); } }
+function load(u){ return new Promise((res,rej)=>{ const i=new Image(); i.crossOrigin="anonymous"; i.onload=()=>res(i); i.onerror=rej; i.src=u; }); }
+let img1=null;
+(async()=>{ try{ await document.fonts.load('italic 400 40px "Cormorant Garamond"'); await document.fonts.load('400 40px "Cormorant Garamond"'); }catch(e){}
+  img1=await load(M1); render(); })();
+function render(){ if(!img1) return; draw(prev.getContext("2d"),prev.width,prev.height,img1); }
+["n","d","s"].forEach(id=>$(id).addEventListener("input",render));
+$("dl").addEventListener("click", async()=>{ const b=$("dl"); b.disabled=true; st.textContent="Preparing your 300 dpi file…";
+  try{ const img=await load(M4); const c=document.createElement("canvas"); c.width=3600; c.height=5400; const ctx=c.getContext("2d"); ctx.imageSmoothingQuality="high"; draw(ctx,3600,5400,img);
+    const blob=await new Promise(r=>c.toBlob(r,"image/jpeg",0.93)); const a=document.createElement("a"); const safe=($("n").value.trim()||"birth-plate").replace(/[^\p{L}\p{N} _-]/gu,"");
+    a.href=URL.createObjectURL(blob); a.download=`birth-plate-${safe}-12x18in-300dpi.jpg`; document.body.appendChild(a); a.click(); a.remove(); st.textContent="Saved. Print at 12 × 18 in or any 2:3 size."; }
+  catch(e){ st.textContent="Could not build the file on this device — try a computer browser, or message the shop and we will make it for you."; } finally{ b.disabled=false; } });
+</script></body></html>
