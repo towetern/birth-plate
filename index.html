@@ -2,32 +2,50 @@
 <title>Birth Plate Maker · Darul Noon</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;1,400;1,500&family=Source+Sans+3:wght@400;600&display=swap">
 <style>
-:root{--paper:#F3EDE2;--ink:#2B2622;--muted:#6F665C;--line:#D9CFC0;--sage:#6F7D62;--panel:#FBF8F2}
+:root{--paper:#F3EDE2;--ink:#2B2622;--muted:#6F665C;--line:#D9CFC0;--sage:#6F7D62;--panel:#FBF8F2;--warn:#8A5A3C}
 *{box-sizing:border-box}body{margin:0;background:var(--paper);color:var(--ink);font-family:"Source Sans 3",system-ui,sans-serif;padding:20px 16px 48px}
 .wrap{max-width:1040px;margin:0 auto}h1{font-family:"Cormorant Garamond",Georgia,serif;font-weight:500;font-size:2rem;margin:0 0 4px}
 .eyebrow{font-size:.72rem;text-transform:uppercase;letter-spacing:.14em;color:var(--muted)}
 .grid{display:grid;grid-template-columns:minmax(0,3fr) minmax(280px,2fr);gap:28px;align-items:start;margin-top:22px}@media(max-width:760px){.grid{grid-template-columns:1fr}}
 .preview{background:var(--panel);border:1px solid var(--line);padding:18px;display:flex;justify-content:center}canvas{max-width:100%;height:auto;box-shadow:0 12px 30px rgba(43,38,34,.12)}
 label{display:grid;gap:6px;font-size:.85rem;color:var(--muted);margin-bottom:16px}input{font:inherit;font-size:1rem;padding:10px 12px;border:1px solid var(--line);background:var(--panel);color:var(--ink)}
+input.bad{border-color:var(--warn)}
 button{font:inherit;font-weight:600;padding:12px 18px;border:0;background:var(--sage);color:#F6F3EC;cursor:pointer;width:100%}button[disabled]{opacity:.5}
 .note{font-size:.82rem;color:var(--muted);line-height:1.5}.status{min-height:1.4em;font-size:.85rem;margin-top:10px}
+.warn{background:#F6EBE2;border:1px solid #E2CDBD;color:var(--warn);padding:12px 14px;font-size:.9rem;line-height:1.5;margin-bottom:14px;display:none}
 </style></head><body><div class="wrap">
 <div class="eyebrow">Darul Noon · your download</div><h1>Birth Plate Maker</h1>
 <p class="note">Type your baby's details, watch them appear on the wreath, then download the print file — 3600 × 5400 px, 300 dpi, ready for 12 × 18 in or any 2:3 size. Nothing you type leaves your device.</p>
 <div class="grid">
 <div class="preview"><canvas id="prev" width="1024" height="1536"></canvas></div>
 <div>
+<div class="warn" id="warn"></div>
 <label>Baby's name<input id="n" maxlength="30" value="Amélie"></label>
 <label>Birth date<input id="d" maxlength="30" value="12 March 2026"></label>
 <label>Time · weight · length (optional)<input id="s" maxlength="60" value="3:42 am · 3.4 kg · 51 cm"></label>
 <button id="dl">Download my birth plate (print file)</button>
 <div class="status" id="st"></div>
-<p class="note">The name is set in the same engraver's italic as the plate. Leave a line empty to skip it. Print on matte paper; frame with a wide ivory mount, as in the listing photos.</p>
+<p class="note">The plate carries a name, a date and the birth measurements — nothing else is lettered on it. Leave a line empty to skip it. Print on matte paper; frame with a wide ivory mount, as in the listing photos. The plain chamomile print is already in your download if you prefer it.</p>
 </div></div></div>
 <script>
 const M1="https://v3b.fal.media/files/b/0aab7ba1/iII-W2GS_8ksv2sbudzGa_0laBxBjp.png", M4="https://v3b.fal.media/files/b/0aab7bb0/KLrfmw0DaySwMpyMYbB6K.png", FONT='"Cormorant Garamond", Georgia, serif';
-const $=id=>document.getElementById(id); const prev=$("prev"); const st=$("st");
-function draw(ctx,W,H,img){ ctx.drawImage(img,0,0,W,H); const name=$("n").value.trim(), date=$("d").value.trim(), stats=$("s").value.trim();
+// Wording the plate does not letter: ceremony and worship wording of any faith, plus any words the shop adds to SHOP_BLOCK.
+const CEREMONY=["baptis","baptiz","christen","godparent","godmother","godfather","communion","confirmation","blessed by","god bless","jesus","christ ","saint ","st. ","church","halleluj","amen","in christ","dedicated to god","bar mitzvah","bat mitzvah","brit milah","aqiqah","namkaran"];
+const SHOP_BLOCK=[];
+const $=id=>document.getElementById(id); const prev=$("prev"); const st=$("st"); const warn=$("warn");
+function blocked(t){ const x=(" "+t.toLowerCase()+" "); return CEREMONY.concat(SHOP_BLOCK).some(w=>x.includes(w)); }
+function fields(){
+  const name=$("n").value.trim(), date=$("d").value.trim(), stats=$("s").value.trim(); const problems=[];
+  const nOK=!blocked(name), dOK=!blocked(date), sOK=!blocked(stats) && (stats==="" || /\d/.test(stats));
+  $("n").classList.toggle("bad",!nOK); $("d").classList.toggle("bad",!dOK); $("s").classList.toggle("bad",!sOK);
+  if(!nOK||!dOK) problems.push("This plate letters a name, a date and birth measurements only — ceremony or worship wording is not printed on it.");
+  if(!sOK && stats!=="" && !blocked(stats)) problems.push("The third line is for time, weight and length (for example 3:42 am · 3.4 kg · 51 cm).");
+  if(!sOK && blocked(stats)) problems.push("The third line is for time, weight and length — other wording is not printed on the plate.");
+  warn.style.display=problems.length?"block":"none";
+  warn.innerHTML=problems.length? problems.join(" ")+" You can change the wording, or simply use the plain chamomile print that is already in your download." : "";
+  return {name:nOK?name:"", date:dOK?date:"", stats:sOK?stats:"", ok:nOK&&dOK&&sOK};
+}
+function draw(ctx,W,H,img){ ctx.drawImage(img,0,0,W,H); const {name,date,stats}=fields();
   ctx.fillStyle="rgb(92,74,58)"; ctx.textAlign="center"; ctx.textBaseline="middle"; let size=Math.round(W*0.117);
   for(;size>W*0.033;size-=4){ ctx.font=`italic 400 ${size}px ${FONT}`; if(ctx.measureText(name).width<=W*0.46) break; }
   const cy=H*0.50; if(name) ctx.fillText(name,W/2,cy-size*0.55);
@@ -39,7 +57,8 @@ let img1=null;
   img1=await load(M1); render(); })();
 function render(){ if(!img1) return; draw(prev.getContext("2d"),prev.width,prev.height,img1); }
 ["n","d","s"].forEach(id=>$(id).addEventListener("input",render));
-$("dl").addEventListener("click", async()=>{ const b=$("dl"); b.disabled=true; st.textContent="Preparing your 300 dpi file…";
+$("dl").addEventListener("click", async()=>{ const f=fields(); if(!f.ok){ st.textContent="Please adjust the highlighted line first."; return; }
+  const b=$("dl"); b.disabled=true; st.textContent="Preparing your 300 dpi file…";
   try{ const img=await load(M4); const c=document.createElement("canvas"); c.width=3600; c.height=5400; const ctx=c.getContext("2d"); ctx.imageSmoothingQuality="high"; draw(ctx,3600,5400,img);
     const blob=await new Promise(r=>c.toBlob(r,"image/jpeg",0.93)); const a=document.createElement("a"); const safe=($("n").value.trim()||"birth-plate").replace(/[^\p{L}\p{N} _-]/gu,"");
     a.href=URL.createObjectURL(blob); a.download=`birth-plate-${safe}-12x18in-300dpi.jpg`; document.body.appendChild(a); a.click(); a.remove(); st.textContent="Saved. Print at 12 × 18 in or any 2:3 size."; }
