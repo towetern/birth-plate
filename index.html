@@ -1,4 +1,4 @@
-<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex, nofollow">
 <title>Birth Plate Maker · CottageFolio</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;1,400;1,500&family=Source+Sans+3:wght@400;600&display=swap">
 <style>
@@ -53,7 +53,7 @@ function draw(ctx,W,H,img){ ctx.drawImage(img,0,0,W,H); const {name,date,stats}=
   if(stats){ ctx.font=`400 ${Math.round(size*0.30)}px ${FONT}`; ctx.fillStyle="rgb(112,96,80)"; ctx.fillText(stats,W/2,cy+size*0.95); } }
 function load(u){ return new Promise((res,rej)=>{ const i=new Image(); i.crossOrigin="anonymous"; i.onload=()=>res(i); i.onerror=rej; i.src=u; }); }
 let img1=null;
-(async()=>{ try{ await document.fonts.load('italic 400 40px "Cormorant Garamond""); await document.fonts.load('400 40px "Cormorant Garamond"'); }catch(e){}
+(async()=>{ try{ await document.fonts.load('italic 400 40px "Cormorant Garamond"'); await document.fonts.load('400 40px "Cormorant Garamond"'); }catch(e){}
   img1=await load(M1); render(); })();
 function render(){ if(!img1) return; draw(prev.getContext("2d"),prev.width,prev.height,img1); }
 ["n","d","s"].forEach(id=>$(id).addEventListener("input",render));
