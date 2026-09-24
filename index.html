@@ -1,5 +1,5 @@
 <!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Birth Plate Maker · Darul Noon</title>
+<title>Birth Plate Maker · CottageFolio</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;1,400;1,500&family=Source+Sans+3:wght@400;600&display=swap">
 <style>
 :root{--paper:#F3EDE2;--ink:#2B2622;--muted:#6F665C;--line:#D9CFC0;--sage:#6F7D62;--panel:#FBF8F2;--warn:#8A5A3C}
@@ -14,7 +14,7 @@ button{font:inherit;font-weight:600;padding:12px 18px;border:0;background:var(--
 .note{font-size:.82rem;color:var(--muted);line-height:1.5}.status{min-height:1.4em;font-size:.85rem;margin-top:10px}
 .warn{background:#F6EBE2;border:1px solid #E2CDBD;color:var(--warn);padding:12px 14px;font-size:.9rem;line-height:1.5;margin-bottom:14px;display:none}
 </style></head><body><div class="wrap">
-<div class="eyebrow">Darul Noon · your download</div><h1>Birth Plate Maker</h1>
+<div class="eyebrow">CottageFolio · your download</div><h1>Birth Plate Maker</h1>
 <p class="note">Type your baby's details, watch them appear on the wreath, then download the print file — 3600 × 5400 px, 300 dpi, ready for 12 × 18 in or any 2:3 size. Nothing you type leaves your device.</p>
 <div class="grid">
 <div class="preview"><canvas id="prev" width="1024" height="1536"></canvas></div>
@@ -53,7 +53,7 @@ function draw(ctx,W,H,img){ ctx.drawImage(img,0,0,W,H); const {name,date,stats}=
   if(stats){ ctx.font=`400 ${Math.round(size*0.30)}px ${FONT}`; ctx.fillStyle="rgb(112,96,80)"; ctx.fillText(stats,W/2,cy+size*0.95); } }
 function load(u){ return new Promise((res,rej)=>{ const i=new Image(); i.crossOrigin="anonymous"; i.onload=()=>res(i); i.onerror=rej; i.src=u; }); }
 let img1=null;
-(async()=>{ try{ await document.fonts.load('italic 400 40px "Cormorant Garamond"'); await document.fonts.load('400 40px "Cormorant Garamond"'); }catch(e){}
+(async()=>{ try{ await document.fonts.load('italic 400 40px "Cormorant Garamond""); await document.fonts.load('400 40px "Cormorant Garamond"'); }catch(e){}
   img1=await load(M1); render(); })();
 function render(){ if(!img1) return; draw(prev.getContext("2d"),prev.width,prev.height,img1); }
 ["n","d","s"].forEach(id=>$(id).addEventListener("input",render));
